@@ -1,50 +1,62 @@
-import {RecoilRoot, useRecoilValue, useSetRecoilState } from "recoil"
-import { countAtom } from "./store/atoms/count";
-import { OddEvenSelector } from "./selector/oddeven";
+import {RecoilRoot, useRecoilState, useRecoilValue, useSetRecoilState } from "recoil"
+import { todoAtom } from "./store/atoms/todo";
+import { filterAtom } from "./store/atoms/filter"
+import { filterSelector } from "./selector/filterTodo";
+import {useState} from 'react'
 
 function App(){
 
   return(
     <>
       <RecoilRoot>
-        <Count />
+        <FilterTodo />
+        <CreateTodo></CreateTodo>
+        <Todos></Todos>
       </RecoilRoot>
-        
     </>
   )
 }
-function Count(){
-  console.log("count renderd")
+function FilterTodo(){
+  const setFilter = useSetRecoilState(filterAtom)
   return <div>
-    <Counter></Counter>
-    <Button></Button>
-    <OddEven></OddEven>
+    <input onChange={(e) => {
+      setFilter(e.target.value);
+    }} placeholder="Search"/>
   </div>
 }
-function Counter(){
-  const count = useRecoilValue(countAtom);
+function CreateTodo(){
+  const [todos,setTodos] = useRecoilState(todoAtom)
+  const [title, setTitle] = useState("");
+  const [desc, setDesc] = useState("");
   return <div>
-    count is {count}
-  </div>
-}
-function  Button(){
-  const setCount = useSetRecoilState(countAtom);
-  return <div>
+    <input type="text" onChange={(e)=>{
+      setTitle(e.target.value);
+    }} />
+    <input type="text" onChange={(e)=>{
+      setDesc(e.target.value);
+    }} />
     <button onClick={()=>{
-      setCount( (prev) =>{
-        return prev + 1
-      } )
-    }}> + </button>
-    <button onClick={()=>{
-      setCount( prev => prev - 1)
-    }}> - </button>
+      setTodos([...todos,{
+        title : title,
+        description : desc
+      }])
+    }}>add Todo</button>
   </div>
 }
-function OddEven(){
-  const count = useRecoilValue(OddEvenSelector);
-  return <div>
-    { count ? "even" : "odd"}
-  </div>
+function Todos(){
+  const todos = useRecoilValue(filterSelector)
+ 
+  return(
+    <>
+      {todos.map( todo => {
+        
+        return <div >
+          <h1>{todo.title}</h1>
+          <h6>{todo.description}</h6>
+        </div>
+      })}
+    </>
+  )
 }
 
 
